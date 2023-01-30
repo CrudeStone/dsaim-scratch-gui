@@ -48,6 +48,14 @@ import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
 export default [
     {
+        name: 'KNN分類器',
+        extensionId: 'helloWorld',
+        iconURL: musicIconURL,
+        insetIconURL: musicInsetIconURL,
+        description: '利用KNN做分類',
+        featured: true
+    },
+    {
         name: (
             <FormattedMessage
                 defaultMessage="Music"
