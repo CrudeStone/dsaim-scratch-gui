@@ -1,18 +1,18 @@
 import bindAll from 'lodash.bindall';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {injectIntl, intlShape, defineMessages} from 'react-intl';
+import { injectIntl, intlShape, defineMessages } from 'react-intl';
 
 import monitorAdapter from '../lib/monitor-adapter.js';
-import MonitorComponent, {monitorModes} from '../components/monitor/monitor.jsx';
-import {addMonitorRect, getInitialPosition, resizeMonitorRect, removeMonitorRect} from '../reducers/monitor-layout';
-import {getVariable, setVariableValue} from '../lib/variable-utils';
+import MonitorComponent, { monitorModes } from '../components/monitor/monitor.jsx';
+import { addMonitorRect, getInitialPosition, resizeMonitorRect, removeMonitorRect } from '../reducers/monitor-layout';
+import { getVariable, setVariableValue } from '../lib/variable-utils';
 import importCSV from '../lib/import-csv';
 import downloadBlob from '../lib/download-blob';
 import SliderPrompt from './slider-prompt.jsx';
 
-import {connect} from 'react-redux';
-import {Map} from 'immutable';
+import { connect } from 'react-redux';
+import { Map } from 'immutable';
 import VM from 'scratch-vm';
 
 const availableModes = opcode => (
@@ -35,7 +35,7 @@ const messages = defineMessages({
 });
 
 class Monitor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
         bindAll(this, [
             'handleDragEnd',
@@ -55,7 +55,7 @@ class Monitor extends React.Component {
             sliderPrompt: false
         };
     }
-    componentDidMount () {
+    componentDidMount() {
         let rect;
 
         const isNum = num => typeof num === 'number' && !isNaN(num);
@@ -66,8 +66,8 @@ class Monitor extends React.Component {
         if (isNum(this.props.x) && isNum(this.props.y) &&
             !this.props.monitorLayout.savedMonitorPositions[this.props.id]) {
             rect = {
-                upperStart: {x: this.props.x, y: this.props.y},
-                lowerEnd: {x: this.props.x + this.element.offsetWidth, y: this.props.y + this.element.offsetHeight}
+                upperStart: { x: this.props.x, y: this.props.y },
+                lowerEnd: { x: this.props.x + this.element.offsetWidth, y: this.props.y + this.element.offsetHeight }
             };
             this.props.addMonitorRect(this.props.id, rect, true /* savePosition */);
         } else { // Newly created user monitor
@@ -83,7 +83,7 @@ class Monitor extends React.Component {
         this.element.style.top = `${rect.upperStart.y}px`;
         this.element.style.left = `${rect.upperStart.x}px`;
     }
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
         if (nextState !== this.state) {
             return true;
         }
@@ -96,13 +96,13 @@ class Monitor extends React.Component {
         }
         return false;
     }
-    componentDidUpdate () {
+    componentDidUpdate() {
         this.props.resizeMonitorRect(this.props.id, this.element.offsetWidth, this.element.offsetHeight);
     }
-    componentWillUnmount () {
+    componentWillUnmount() {
         this.props.removeMonitorRect(this.props.id);
     }
-    handleDragEnd (e, {x, y}) {
+    handleDragEnd(e, { x, y }) {
         const newX = parseInt(this.element.style.left, 10) + x;
         const newY = parseInt(this.element.style.top, 10) + y;
         this.props.onDragEnd(
@@ -116,13 +116,13 @@ class Monitor extends React.Component {
             y: newY
         }));
     }
-    handleHide () {
+    handleHide() {
         this.props.vm.runtime.requestUpdateMonitor(Map({
             id: this.props.id,
             visible: false
         }));
     }
-    handleNextMode () {
+    handleNextMode() {
         const modes = availableModes(this.props.opcode);
         const modeIndex = modes.indexOf(this.props.mode);
         const newMode = modes[(modeIndex + 1) % modes.length];
@@ -131,31 +131,31 @@ class Monitor extends React.Component {
             mode: newMode
         }));
     }
-    handleSetModeToDefault () {
+    handleSetModeToDefault() {
         this.props.vm.runtime.requestUpdateMonitor(Map({
             id: this.props.id,
             mode: 'default'
         }));
     }
-    handleSetModeToLarge () {
+    handleSetModeToLarge() {
         this.props.vm.runtime.requestUpdateMonitor(Map({
             id: this.props.id,
             mode: 'large'
         }));
     }
-    handleSetModeToSlider () {
+    handleSetModeToSlider() {
         this.props.vm.runtime.requestUpdateMonitor(Map({
             id: this.props.id,
             mode: 'slider'
         }));
     }
-    handleSliderPromptClose () {
-        this.setState({sliderPrompt: false});
+    handleSliderPromptClose() {
+        this.setState({ sliderPrompt: false });
     }
-    handleSliderPromptOpen () {
-        this.setState({sliderPrompt: true});
+    handleSliderPromptOpen() {
+        this.setState({ sliderPrompt: true });
     }
-    handleSliderPromptOk (min, max, isDiscrete) {
+    handleSliderPromptOk(min, max, isDiscrete) {
         const realMin = Math.min(min, max);
         const realMax = Math.max(min, max);
         this.props.vm.runtime.requestUpdateMonitor(Map({
@@ -166,31 +166,40 @@ class Monitor extends React.Component {
         }));
         this.handleSliderPromptClose();
     }
-    setElement (monitorElt) {
+    setElement(monitorElt) {
         this.element = monitorElt;
     }
-    handleImport () {
+    handleImport() {
         importCSV().then(rows => {
             const numberOfColumns = rows[0].length;
             let columnNumber = 1;
             if (numberOfColumns > 1) {
-                const msg = this.props.intl.formatMessage(messages.columnPrompt, {numberOfColumns});
+                const msg = this.props.intl.formatMessage(messages.columnPrompt, { numberOfColumns });
                 columnNumber = parseInt(prompt(msg), 10); // eslint-disable-line no-alert
+
             }
-            const newListValue = rows.map(row => row[columnNumber - 1])
-                .filter(item => typeof item === 'string'); // CSV importer can leave undefineds
-            const {vm, targetId, id: variableId} = this.props;
+
+            var newListValue = null;
+            if (columnNumber == 0 || isNaN(columnNumber)) {
+                newListValue = rows.map(row => row.join(","));
+                console.log(newListValue);
+            } else {
+                newListValue = rows.map(row => row[columnNumber - 1])
+                    .filter(item => typeof item === 'string'); // CSV importer can leave undefineds
+            }
+
+            const { vm, targetId, id: variableId } = this.props;
             setVariableValue(vm, targetId, variableId, newListValue);
         });
     }
-    handleExport () {
-        const {vm, targetId, id: variableId} = this.props;
+    handleExport() {
+        const { vm, targetId, id: variableId } = this.props;
         const variable = getVariable(vm, targetId, variableId);
         const text = variable.value.join('\r\n');
-        const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         downloadBlob(`${variable.name}.txt`, blob);
     }
-    render () {
+    render() {
         const monitorProps = monitorAdapter(this.props);
         const showSliderOption = availableModes(this.props.opcode).indexOf('slider') !== -1;
         const isList = this.props.mode === 'list';

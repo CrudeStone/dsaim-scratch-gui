@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormattedMessage} from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import musicIconURL from './music/music.png';
 import musicInsetIconURL from './music/music-small.svg';
@@ -46,12 +46,15 @@ import gdxforInsetIconURL from './gdxfor/gdxfor-small.svg';
 import gdxforConnectionIconURL from './gdxfor/gdxfor-illustration.svg';
 import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
+import knnIconURL from './knn/knn.png';
+import knnInsetIconURL from './knn/knn-small.svg';
+
 export default [
     {
         name: 'KNN分類器',
-        extensionId: 'helloWorld',
-        iconURL: musicIconURL,
-        insetIconURL: musicInsetIconURL,
+        extensionId: 'knn',
+        iconURL: knnIconURL,
+        insetIconURL: knnInsetIconURL,
         description: '利用KNN做分類',
         featured: true
     },
