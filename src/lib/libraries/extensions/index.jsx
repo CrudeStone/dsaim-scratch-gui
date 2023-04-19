@@ -49,6 +49,10 @@ import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 import knnIconURL from './knn/knn.png';
 import knnInsetIconURL from './knn/knn-small.svg';
 
+import kmeansIconURL from './kmeans/kmeans.png';
+import kmeansInsetIconURL from './kmeans/kmeans-small.svg';
+
+
 export default [
     {
         name: 'KNN分類器',
@@ -56,6 +60,14 @@ export default [
         iconURL: knnIconURL,
         insetIconURL: knnInsetIconURL,
         description: '利用KNN做分類',
+        featured: true
+    },
+    {
+        name: 'K-Means分群',
+        extensionId: 'kmeans',
+        iconURL: kmeansIconURL,
+        insetIconURL: kmeansInsetIconURL,
+        description: '利用K-means做分群',
         featured: true
     },
     {

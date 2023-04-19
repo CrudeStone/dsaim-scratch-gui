@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {compose} from 'redux';
+import { compose } from 'redux';
 
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import GUI from '../containers/gui.jsx';
@@ -56,6 +56,20 @@ export default appTarget => {
         }
     }
 
+    const projectFileMatches = window.location.href.match(/[?&]project_file=([^&]*)&?/);
+    const projectFile = projectFileMatches ? decodeURIComponent(projectFileMatches[1]) : null;
+
+    const onVmInit = vm => {
+        if (projectFile) {
+            fetch(projectFile)
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => {
+                    vm.loadProject(arrayBuffer);
+                });
+        }
+    };
+
+
     if (process.env.NODE_ENV === 'production' && typeof window === 'object') {
         // Warn before navigating away
         window.onbeforeunload = () => true;
@@ -80,6 +94,7 @@ export default appTarget => {
                 backpackHost={backpackHost}
                 canSave={false}
                 onClickLogo={onClickLogo}
+                onVmInit={onVmInit}
             />,
         appTarget);
 };
