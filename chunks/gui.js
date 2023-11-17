@@ -191,6 +191,19 @@ var handleTelemetryModalOptOut = function handleTelemetryModalOptOut() {
     }
   }
 
+  var projectFileMatches = window.location.href.match(/[?&]project_file=([^&]*)&?/);
+  var projectFile = projectFileMatches ? decodeURIComponent(projectFileMatches[1]) : null;
+
+  var onVmInit = function onVmInit(vm) {
+    if (projectFile) {
+      fetch(projectFile).then(function (response) {
+        return response.arrayBuffer();
+      }).then(function (arrayBuffer) {
+        vm.loadProject(arrayBuffer);
+      });
+    }
+  };
+
   if (false) {}
 
   react_dom__WEBPACK_IMPORTED_MODULE_1___default.a.render( // important: this is checking whether `simulateScratchDesktop` is truthy, not just defined!
@@ -208,7 +221,8 @@ var handleTelemetryModalOptOut = function handleTelemetryModalOptOut() {
     showComingSoon: true,
     backpackHost: backpackHost,
     canSave: false,
-    onClickLogo: onClickLogo
+    onClickLogo: onClickLogo,
+    onVmInit: onVmInit
   }), appTarget);
 });
 
